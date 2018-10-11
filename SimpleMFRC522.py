@@ -20,14 +20,19 @@ class SimpleMFRC522:
       return id, text
 
   def read_id(self):
-    id, text = self.read_no_block()        
+    id = self.read_id_no_block()
     while not id:
-      id, text = self.read_no_block()  
+      id = self.read_id_no_block()
     return id
 
   def read_id_no_block(self):
-    id, text = self.read_no_block()
-    return id
+      (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
+      if status != self.READER.MI_OK:
+          return None, None
+      (status, uid) = self.READER.MFRC522_Anticoll()
+      if status != self.READER.MI_OK:
+          return None, None
+      return self.uid_to_num(uid)
   
   def read_no_block(self):
     (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
