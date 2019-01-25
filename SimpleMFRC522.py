@@ -28,10 +28,10 @@ class SimpleMFRC522:
   def read_id_no_block(self):
       (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
       if status != self.READER.MI_OK:
-          return None, None
+          return None
       (status, uid) = self.READER.MFRC522_Anticoll()
       if status != self.READER.MI_OK:
-          return None, None
+          return None
       return self.uid_to_num(uid)
   
   def read_no_block(self):
