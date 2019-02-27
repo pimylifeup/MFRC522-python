@@ -402,27 +402,27 @@ class MFRC522:
                 "Data written"
 
 
-def MFRC522_DumpClassic1K(self, key, uid):
-    i = 0
-    while i < 64:
-        status = self.MFRC522_Auth(self.PICC_AUTHENT1A, i, key, uid)
-        # Check if authenticated
-        if status == self.MI_OK:
-            self.MFRC522_Read(i)
-        else:
-            print
-            "Authentication error"
-        i = i + 1
+    def MFRC522_DumpClassic1K(self, key, uid):
+        i = 0
+        while i < 64:
+            status = self.MFRC522_Auth(self.PICC_AUTHENT1A, i, key, uid)
+            # Check if authenticated
+            if status == self.MI_OK:
+                self.MFRC522_Read(i)
+            else:
+                print
+                "Authentication error"
+            i = i + 1
 
 
-def MFRC522_Init(self):
-    self.MFRC522_Reset();
+    def MFRC522_Init(self):
+        self.MFRC522_Reset();
 
-    self.Write_MFRC522(self.TModeReg, 0x8D)
-    self.Write_MFRC522(self.TPrescalerReg, 0x3E)
-    self.Write_MFRC522(self.TReloadRegL, 30)
-    self.Write_MFRC522(self.TReloadRegH, 0)
+        self.Write_MFRC522(self.TModeReg, 0x8D)
+        self.Write_MFRC522(self.TPrescalerReg, 0x3E)
+        self.Write_MFRC522(self.TReloadRegL, 30)
+        self.Write_MFRC522(self.TReloadRegH, 0)
 
-    self.Write_MFRC522(self.TxAutoReg, 0x40)
-    self.Write_MFRC522(self.ModeReg, 0x3D)
-    self.AntennaOn()
+        self.Write_MFRC522(self.TxAutoReg, 0x40)
+        self.Write_MFRC522(self.ModeReg, 0x3D)
+        self.AntennaOn()
