@@ -370,6 +370,9 @@ class MFRC522:
         if len(backData) == 16:
             print
             "Sector " + str(blockAddr) + " " + str(backData)
+            return backData
+        else:
+            return None
 
     def MFRC522_Write(self, blockAddr, writeData):
         buff = []
@@ -400,7 +403,6 @@ class MFRC522:
             if status == self.MI_OK:
                 print
                 "Data written"
-
 
     def MFRC522_DumpClassic1K(self, key, uid):
         i = 0
