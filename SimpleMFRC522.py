@@ -5,7 +5,7 @@ import RPi.GPIO as GPIO
   
 class SimpleMFRC522:
 
-  READER = None;
+  READER = None
   
   KEY = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
   BLOCK_ADDRS = [8, 9, 10]

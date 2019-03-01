@@ -269,10 +269,9 @@ class MFRC522:
         if (status == self.MI_OK):
             i = 0
             if len(backData) == 5:
-                while i < 4:
+                for i in range(4):
                     serNumCheck = serNumCheck ^ backData[i]
-                    i = i + 1
-                if serNumCheck != backData[i]:
+                if serNumCheck != backData[4]:
                     status = self.MI_ERR
             else:
                 status = self.MI_ERR
@@ -282,15 +281,15 @@ class MFRC522:
     def CalulateCRC(self, pIndata):
         self.ClearBitMask(self.DivIrqReg, 0x04)
         self.SetBitMask(self.FIFOLevelReg, 0x80)
-        i = 0
-        while i < len(pIndata):
+
+        for i in range(len(pIndata)):
             self.Write_MFRC522(self.FIFODataReg, pIndata[i])
-            i = i + 1
+
         self.Write_MFRC522(self.CommandReg, self.PCD_CALCCRC)
         i = 0xFF
         while True:
             n = self.Read_MFRC522(self.DivIrqReg)
-            i = i - 1
+            i -= 1
             if not ((i != 0) and not (n & 0x04)):
                 break
         pOutData = []
@@ -303,10 +302,10 @@ class MFRC522:
         buf = []
         buf.append(self.PICC_SElECTTAG)
         buf.append(0x70)
-        i = 0
-        while i < 5:
+        
+        for i in range(5):
             buf.append(serNum[i])
-            i = i + 1
+
         pOut = self.CalulateCRC(buf)
         buf.append(pOut[0])
         buf.append(pOut[1])
@@ -360,7 +359,7 @@ class MFRC522:
         (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
         if not (status == self.MI_OK):
             self.logger.error("Error while reading!")
-        i = 0
+
         if len(backData) == 16:
             self.logger.debug("Sector " + str(blockAddr) + " " + str(backData))
             return backData
@@ -380,11 +379,10 @@ class MFRC522:
 
         logger.debug("%s backdata &0x0F == 0x0A %s" % (backLen, backData[0] & 0x0F))
         if status == self.MI_OK:
-            i = 0
             buf = []
-            while i < 16:
+            for i in range(16):
                 buf.append(writeData[i])
-                i = i + 1
+
             crc = self.CalulateCRC(buf)
             buf.append(crc[0])
             buf.append(crc[1])
@@ -396,16 +394,13 @@ class MFRC522:
 
 
     def MFRC522_DumpClassic1K(self, key, uid):
-        i = 0
-        while i < 64:
+        for i in range(64):
             status = self.MFRC522_Auth(self.PICC_AUTHENT1A, i, key, uid)
             # Check if authenticated
             if status == self.MI_OK:
                 self.MFRC522_Read(i)
             else:
                 self.logger.error("Authentication error")
-            i = i + 1
-
 
     def MFRC522_Init(self):
         self.MFRC522_Reset()
