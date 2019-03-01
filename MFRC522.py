@@ -20,12 +20,11 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with MFRC522-Python.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 import RPi.GPIO as GPIO
 import spidev
 import signal
 import time
-
+import logging
 
 class MFRC522:
     NRSTPD = 22
@@ -128,10 +127,12 @@ class MFRC522:
 
     serNum = []
 
-    def __init__(self, bus=0, device=0, spd=1000000):
+    def __init__(self, bus=0, device=0, spd=1000000, debug=False):
         self.spi = spidev.SpiDev()
         self.spi.open(bus, device)
         self.spi.max_speed_hz = spd
+
+        self.DEBUG = debug
 
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.NRSTPD, GPIO.OUT)
@@ -176,7 +177,6 @@ class MFRC522:
         waitIRq = 0x00
         lastBits = None
         n = 0
-        i = 0
 
         if command == self.PCD_AUTHENT:
             irqEn = 0x12
@@ -191,20 +191,18 @@ class MFRC522:
 
         self.Write_MFRC522(self.CommandReg, self.PCD_IDLE)
 
-        while (i < len(sendData)):
+        for i in range(len(sendData)):
             self.Write_MFRC522(self.FIFODataReg, sendData[i])
-            i = i + 1
 
         self.Write_MFRC522(self.CommandReg, command)
 
         if command == self.PCD_TRANSCEIVE:
             self.SetBitMask(self.BitFramingReg, 0x80)
 
-        # TODO: This is very inelegant and results in blocking behavior. For now just decrease loop iteration count by 10x.
-        i = 200
+        i = 2000
         while True:
             n = self.Read_MFRC522(self.CommIrqReg)
-            i = i - 1
+            i -= 1
             if ~((i != 0) and ~(n & 0x01) and ~(n & waitIRq)):
                 break
 
@@ -230,10 +228,8 @@ class MFRC522:
                     if n > self.MAX_LEN:
                         n = self.MAX_LEN
 
-                    i = 0
-                    while i < n:
+                    for i in range(n):
                         backData.append(self.Read_MFRC522(self.FIFODataReg))
-                        i = i + 1
             else:
                 status = self.MI_ERR
 
@@ -314,7 +310,7 @@ class MFRC522:
         (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
 
         if (status == self.MI_OK) and (backLen == 0x18):
-            print("Size: " + str(backData[0]))
+            logging.debug("Size: " + str(backData[0]))
             return backData[0]
         else:
             return 0
@@ -329,25 +325,21 @@ class MFRC522:
         buff.append(BlockAddr)
 
         # Now we need to append the authKey which usually is 6 bytes of 0xFF
-        i = 0
-        while (i < len(Sectorkey)):
+        for i in range(len(Sectorkey)):
             buff.append(Sectorkey[i])
-            i = i + 1
-        i = 0
 
         # Next we append the first 4 bytes of the UID
-        while (i < 4):
+        for i in range(4):
             buff.append(serNum[i])
-            i = i + 1
 
         # Now we start the authentication itself
         (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_AUTHENT, buff)
 
         # Check if an error occurred
         if not (status == self.MI_OK):
-            print("AUTH ERROR!!")
+            logging.error("AUTH ERROR!!")
         if not (self.Read_MFRC522(self.Status2Reg) & 0x08) != 0:
-            print("AUTH ERROR(status2reg & 0x08) != 0")
+            logging.error("AUTH ERROR(status2reg & 0x08) != 0")
 
         # Return the status
         return status
@@ -364,10 +356,10 @@ class MFRC522:
         recvData.append(pOut[1])
         (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
         if not (status == self.MI_OK):
-            print("Error while reading!")
+            logging.error("Error while reading!")
         i = 0
         if len(backData) == 16:
-            print("Sector " + str(blockAddr) + " " + str(backData))
+            logging.debug("Sector " + str(blockAddr) + " " + str(backData))
             return backData
         else:
             return None
@@ -383,8 +375,7 @@ class MFRC522:
         if not (status == self.MI_OK) or not (backLen == 4) or not ((backData[0] & 0x0F) == 0x0A):
             status = self.MI_ERR
 
-        print
-        "%s backdata &0x0F == 0x0A %s" % (backLen, backData[0] & 0x0F)
+        logging.debug("%s backdata &0x0F == 0x0A %s" % (backLen, backData[0] & 0x0F))
         if status == self.MI_OK:
             i = 0
             buf = []
@@ -396,9 +387,9 @@ class MFRC522:
             buf.append(crc[1])
             (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
             if not (status == self.MI_OK) or not (backLen == 4) or not ((backData[0] & 0x0F) == 0x0A):
-                print("Error while writing")
+                logging.error("Error while writing")
             if status == self.MI_OK:
-                print("Data written")
+                logging.debug("Data written")
 
 
     def MFRC522_DumpClassic1K(self, key, uid):
@@ -409,7 +400,7 @@ class MFRC522:
             if status == self.MI_OK:
                 self.MFRC522_Read(i)
             else:
-                print("Authentication error")
+                logging.error("Authentication error")
             i = i + 1
 
 
