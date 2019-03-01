@@ -377,7 +377,7 @@ class MFRC522:
         if not (status == self.MI_OK) or not (backLen == 4) or not ((backData[0] & 0x0F) == 0x0A):
             status = self.MI_ERR
 
-        logger.debug("%s backdata &0x0F == 0x0A %s" % (backLen, backData[0] & 0x0F))
+        self.logger.debug("%s backdata &0x0F == 0x0A %s" % (backLen, backData[0] & 0x0F))
         if status == self.MI_OK:
             buf = []
             for i in range(16):
