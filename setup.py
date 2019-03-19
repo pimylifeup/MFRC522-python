@@ -13,6 +13,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/pimylifeup/MFRC522-python",
     packages=setuptools.find_packages(),
+    install_requires=[
+        'RPi.GPIO',
+        ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GPL v3",
