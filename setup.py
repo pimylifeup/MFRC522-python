@@ -15,10 +15,13 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'RPi.GPIO',
+        'spidev'
         ],
     classifiers=[
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GPL v3",
-        "Operating System :: Linux",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: POSIX :: Linux",
+        'Topic :: System :: Hardware',
     ],
 )
