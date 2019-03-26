@@ -1,6 +1,6 @@
 # Code by Simon Monk https://github.com/simonmonk/
 
-import MFRC522
+from . import MFRC522
 import RPi.GPIO as GPIO
   
 class SimpleMFRC522:
@@ -11,12 +11,12 @@ class SimpleMFRC522:
   BLOCK_ADDRS = [8, 9, 10]
   
   def __init__(self):
-    self.READER = MFRC522.MFRC522()
+    self.READER = MFRC522()
   
   def read(self):
-      id, text = self.read_no_block()        
+      id, text = self.read_no_block()
       while not id:
-          id, text = self.read_no_block()  
+          id, text = self.read_no_block()
       return id, text
 
   def read_id(self):
@@ -56,14 +56,11 @@ class SimpleMFRC522:
     self.READER.MFRC522_StopCrypto1()
     return id, text_read
     
-
-    
   def write(self, text):
-      id, text_in = self.write_no_block(text)        
+      id, text_in = self.write_no_block(text)
       while not id:
-          id, text_in = self.write_no_block(text)  
+          id, text_in = self.write_no_block(text)
       return id, text_in
-
 
   def write_no_block(self, text):
       (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
