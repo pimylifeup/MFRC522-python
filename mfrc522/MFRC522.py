@@ -27,8 +27,6 @@ import time
 import logging
 
 class MFRC522:
-    NRSTPD = 22
-
     MAX_LEN = 16
 
     PCD_IDLE = 0x00
@@ -127,7 +125,7 @@ class MFRC522:
 
     serNum = []
 
-    def __init__(self, bus=0, device=0, spd=1000000, debugLevel='WARNING'):
+    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=10, pin_rst=-1, debugLevel='WARNING'):
         self.spi = spidev.SpiDev()
         self.spi.open(bus, device)
         self.spi.max_speed_hz = spd
@@ -137,9 +135,21 @@ class MFRC522:
         level = logging.getLevelName(debugLevel)
         self.logger.setLevel(level)
 
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self.NRSTPD, GPIO.OUT)
-        GPIO.output(self.NRSTPD, 1)
+        gpioMode = GPIO.getmode()
+        
+        if gpioMode == 0 || gpioMode == -1:
+            GPIO.setmode(pin_mode)
+        else:
+            pin_mode = gpioMode
+            
+        if pin_rst == -1:
+            if pin_mode == 11:
+                pin_rst = 15
+            else:
+                pin_rst = 22
+            
+        GPIO.setup(pin_rst, GPIO.OUT)
+        GPIO.output(pin_rst, 1)
         self.MFRC522_Init()
 
     def MFRC522_Reset(self):
