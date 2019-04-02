@@ -137,7 +137,7 @@ class MFRC522:
 
         gpioMode = GPIO.getmode()
         
-        if gpioMode == 0 || gpioMode == -1:
+        if gpioMode == 0 or gpioMode == -1:
             GPIO.setmode(pin_mode)
         else:
             pin_mode = gpioMode
