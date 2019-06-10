@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8 -*-
 #
 #    Copyright 2014,2018 Mario Gomez <mario.gomez@teubi.co>
 #
@@ -25,6 +24,9 @@ import spidev
 import signal
 import time
 import logging
+
+class MFRCException(Exception):
+    pass
 
 class MFRC522:
     MAX_LEN = 16
@@ -349,9 +351,9 @@ class MFRC522:
 
         # Check if an error occurred
         if not (status == self.MI_OK):
-            self.logger.error("AUTH ERROR!!")
+            raise MFRCException("Authentication error")
         if not (self.Read_MFRC522(self.Status2Reg) & 0x08) != 0:
-            self.logger.error("AUTH ERROR(status2reg & 0x08) != 0")
+            raise MFRCException("Authentication error: (status2reg & 0x08) != 0")
 
         # Return the status
         return status
@@ -368,7 +370,7 @@ class MFRC522:
         recvData.append(pOut[1])
         (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
         if not (status == self.MI_OK):
-            self.logger.error("Error while reading!")
+            raise MFRCException("Error while reading!")
 
         if len(backData) == 16:
             self.logger.debug("Sector " + str(blockAddr) + " " + str(backData))
@@ -398,7 +400,7 @@ class MFRC522:
             buf.append(crc[1])
             (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
             if not (status == self.MI_OK) or not (backLen == 4) or not ((backData[0] & 0x0F) == 0x0A):
-                self.logger.error("Error while writing")
+                raise MFRCException("Error while writing")
             if status == self.MI_OK:
                 self.logger.debug("Data written")
 
@@ -410,7 +412,7 @@ class MFRC522:
             if status == self.MI_OK:
                 self.MFRC522_Read(i)
             else:
-                self.logger.error("Authentication error")
+                raise MFRCException("Authentication error")
 
     def MFRC522_Init(self):
         self.MFRC522_Reset()
