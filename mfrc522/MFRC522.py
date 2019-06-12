@@ -216,7 +216,6 @@ class MFRC522:
 
         i = 2000
         while True:
-            time.sleep(0.25)
             n = self.Read_MFRC522(self.CommIrqReg)
             i -= 1
             if ~((i != 0) and ~(n & 0x01) and ~(n & waitIRq)):
