@@ -126,19 +126,19 @@ class MFRC522:
 
     serNum = []
 
-    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=10, pin_rst=-1,
-                 debugLevel='WARNING'):
+    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=10, pin_rst=-1, log_verbose=False):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        if log_verbose:
+            self.logger.setLevel(logging.DEBUG)
+        else:
+            self.logger.setLevel(logging.INFO)
+
+        self.logger.info('Setting up SPI')
         self.spi = spidev.SpiDev()
         self.spi.open(bus, device)
         self.spi.max_speed_hz = spd
 
-        self.logger = logging.getLogger('mfrc522Logger')
-        self.logger.addHandler(logging.StreamHandler())
-        level = logging.getLevelName(debugLevel)
-        self.logger.setLevel(level)
-
         gpioMode = GPIO.getmode()
-
         if gpioMode is None:
             GPIO.setmode(pin_mode)
         else:
@@ -150,8 +150,11 @@ class MFRC522:
             else:
                 pin_rst = 22
 
+        self.logger.info('Setting up RST')
         GPIO.setup(pin_rst, GPIO.OUT)
         GPIO.output(pin_rst, 1)
+
+        self.logger.info('Setting up MFRC522')
         self.MFRC522_Init()
 
     def MFRC522_Reset(self):
@@ -251,8 +254,6 @@ class MFRC522:
         return (status, backData, backLen)
 
     def MFRC522_Request(self, reqMode):
-        status = None
-        backBits = None
         TagType = []
 
         self.Write_MFRC522(self.BitFramingReg, 0x07)
@@ -267,9 +268,7 @@ class MFRC522:
         return (status, backBits)
 
     def MFRC522_Anticoll(self):
-        backData = []
         serNumCheck = 0
-
         serNum = []
 
         self.Write_MFRC522(self.BitFramingReg, 0x00)
@@ -312,7 +311,6 @@ class MFRC522:
         return pOutData
 
     def MFRC522_SelectTag(self, serNum):
-        backData = []
         buf = []
         buf.append(self.PICC_SElECTTAG)
         buf.append(0x70)
@@ -328,9 +326,9 @@ class MFRC522:
 
         if (status == self.MI_OK) and (backLen == 0x18):
             self.logger.debug("Size: " + str(backData[0]))
-            return backData[0]
+            return status, backData[0]
         else:
-            return 0
+            return status, None
 
     def MFRC522_Auth(self, authMode, BlockAddr, Sectorkey, serNum):
         buff = []
@@ -356,6 +354,7 @@ class MFRC522:
         # Check if an error occurred
         if not (status == self.MI_OK):
             self.logger.error("AUTH ERROR!!")
+
         if not (self.Read_MFRC522(self.Status2Reg) & 0x08) != 0:
             self.logger.error("AUTH ERROR(status2reg & 0x08) != 0")
 
