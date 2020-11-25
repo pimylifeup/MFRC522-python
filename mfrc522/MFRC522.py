@@ -126,7 +126,7 @@ class MFRC522:
 
     serNum = []
 
-    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=10, pin_rst=-1, log_verbose=False):
+    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=GPIO.BOARD, pin_rst=-1, log_verbose=False):
         self.logger = logging.getLogger(self.__class__.__name__)
         if log_verbose:
             self.logger.setLevel(logging.DEBUG)

@@ -16,7 +16,7 @@ class SimpleMFRC522:
     _mfrc522 = None
     _key = None
 
-    def __init__(self, key=None, log_verbose=False):
+    def __init__(self, key=None, log_verbose=False, pin_mode=GPIO.BOARD):
         self._log = logging.getLogger(self.__class__.__name__)
         self._log_verbose = log_verbose
         if log_verbose:
@@ -27,7 +27,7 @@ class SimpleMFRC522:
         if key is None:
             key = SimpleMFRC522.DEFAULT_KEY
         self._key = key
-        self._mfrc522 = MFRC522(log_verbose=log_verbose)
+        self._mfrc522 = MFRC522(log_verbose=log_verbose, pin_mode=pin_mode)
 
     def read_id(self, attempts=sys.maxsize):
         id = self.read_id_no_block()
