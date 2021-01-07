@@ -23,14 +23,14 @@ class SimpleMFRC522:
 
         #Log the current date and time and add timeout to the current time stamp in case entering the while loop
         if not kwargs: #If timeout keyword hasn't been provided read for infinity
-            while not idnum:
+            while idnum is None:
                 idnum, text = self.read_no_block()
         else:
-            timeout = datetime.datetime.now() + datetime.timedelta(kwargs['timeout'])
-        
-            while not idnum:
-                if datetime.datetime.now() <= timeout:
-                    idnum, text = self.read_no_block()
+            timeout = datetime.datetime.now() + datetime.timedelta(seconds = kwargs['timeout']) 
+            while idnum is None:
+                idnum, text = self.read_no_block()
+                if (datetime.datetime.now() > timeout):
+                    break
         return idnum, text
 
     def read_id(self):
@@ -71,11 +71,23 @@ class SimpleMFRC522:
         self.READER.MFRC522_StopCrypto1()
         return idnum, text_read
 
-    def write(self, text):
+    def write(self, text, **kwargs):
+        '''
+            kwargs can accept timeout as integer expressed in number of
+            seconds. If the card is not introduced to the reader within the timeout, the write will be terminated.
+        '''
         idnum, text_in = self.write_no_block(text)
-        while not idnum:
-            idnum, text_in = self.write_no_block(text)
-        return idnum, text_in
+        if not kwargs: #If no kwargs is introduced, the write goes into an infinite 
+            while not idnum:
+                idnum, text_in = self.write_no_block(text)
+            return idnum, text_in
+        else:
+            timeout = datetime.datetime.now() + datetime.timedelta(seconds = kwargs['timeout'])
+            if idnum is None:
+                while (datetime.datetime.now() < timeout):
+                    idnum, text_in = self.write_no_block(text)
+                    if idnum:
+                        break
 
     def write_no_block(self, text):
         (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
