@@ -22,13 +22,15 @@ class SimpleMFRC522:
         idnum, text = self.read_no_block()
 
         #Log the current date and time and add timeout to the current time stamp in case entering the while loop
-        timeout = datetime.datetime.now() + datetime.timedelta(kwargs['timeout'])
-        
-        while not idnum:
-            if datetime.datetime.now() <= timeout:
+        if not kwargs: #If timeout keyword hasn't been provided read for infinity
+            while not idnum:
                 idnum, text = self.read_no_block()
-            else:
-                break
+        else:
+            timeoutTime = datetime.datetime.now() + datetime.timedelta(kwargs['timeout'])
+        
+            while not idnum:
+                if datetime.datetime.now() <= timeoutTime:
+                    idnum, text = self.read_no_block()
         return idnum, text
 
     def read_id(self):
