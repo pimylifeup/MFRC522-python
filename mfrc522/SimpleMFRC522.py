@@ -26,10 +26,10 @@ class SimpleMFRC522:
             while not idnum:
                 idnum, text = self.read_no_block()
         else:
-            timeoutTime = datetime.datetime.now() + datetime.timedelta(kwargs['timeout'])
+            timeout = datetime.datetime.now() + datetime.timedelta(kwargs['timeout'])
         
             while not idnum:
-                if datetime.datetime.now() <= timeoutTime:
+                if datetime.datetime.now() <= timeout:
                     idnum, text = self.read_no_block()
         return idnum, text
 
