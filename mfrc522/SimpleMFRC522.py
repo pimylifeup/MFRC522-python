@@ -2,7 +2,7 @@
 
 from . import MFRC522
 import RPi.GPIO as GPIO
-
+import datetime
 
 class SimpleMFRC522:
 
@@ -14,17 +14,28 @@ class SimpleMFRC522:
     def __init__(self):
         self.READER = MFRC522()
 
-    def read(self):
-        id, text = self.read_no_block()
-        while not id:
-            id, text = self.read_no_block()
-        return id, text
+    def read(self, **kwargs):
+        '''
+            read method accepting a timeout expressed as integer in seconds. For example
+            read(timeout = 5) will enter the read mode for 5 sec. 
+        '''
+        idnum, text = self.read_no_block()
+
+        #Log the current date and time and add timeout to the current time stamp in case entering the while loop
+        timeout = datetime.datetime.now() + datetime.timedelta(kwargs['timeout'])
+        
+        while not idnum:
+            if datetime.datetime.now() <= timeout:
+                idnum, text = self.read_no_block()
+            else:
+                break
+        return idnum, text
 
     def read_id(self):
-        id = self.read_id_no_block()
-        while not id:
-            id = self.read_id_no_block()
-        return id
+        idnum = self.read_id_no_block()
+        while not idnum:
+            idnum = self.read_id_no_block()
+        return idnum
 
     def read_id_no_block(self):
         (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
@@ -42,7 +53,7 @@ class SimpleMFRC522:
         (status, uid) = self.READER.MFRC522_Anticoll()
         if status != self.READER.MI_OK:
             return None, None
-        id = self.uid_to_num(uid)
+        idnum = self.uid_to_num(uid)
         self.READER.MFRC522_SelectTag(uid)
         status = self.READER.MFRC522_Auth(
             self.READER.PICC_AUTHENT1A, 11, self.KEY, uid)
@@ -56,13 +67,13 @@ class SimpleMFRC522:
             if data:
                 text_read = ''.join(chr(i) for i in data)
         self.READER.MFRC522_StopCrypto1()
-        return id, text_read
+        return idnum, text_read
 
     def write(self, text):
-        id, text_in = self.write_no_block(text)
-        while not id:
-            id, text_in = self.write_no_block(text)
-        return id, text_in
+        idnum, text_in = self.write_no_block(text)
+        while not idnum:
+            idnum, text_in = self.write_no_block(text)
+        return idnum, text_in
 
     def write_no_block(self, text):
         (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
@@ -71,7 +82,7 @@ class SimpleMFRC522:
         (status, uid) = self.READER.MFRC522_Anticoll()
         if status != self.READER.MI_OK:
             return None, None
-        id = self.uid_to_num(uid)
+        idnum = self.uid_to_num(uid)
         self.READER.MFRC522_SelectTag(uid)
         status = self.READER.MFRC522_Auth(
             self.READER.PICC_AUTHENT1A, 11, self.KEY, uid)
@@ -85,7 +96,7 @@ class SimpleMFRC522:
                 self.READER.MFRC522_Write(block_num, data[(i*16):(i+1)*16])
                 i += 1
         self.READER.MFRC522_StopCrypto1()
-        return id, text[0:(len(self.BLOCK_ADDRS) * 16)]
+        return idnum, text[0:(len(self.BLOCK_ADDRS) * 16)]
 
     def uid_to_num(self, uid):
         n = 0
