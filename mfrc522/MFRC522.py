@@ -26,6 +26,7 @@ import signal
 import time
 import logging
 
+
 class MFRC522:
     MAX_LEN = 16
 
@@ -125,31 +126,35 @@ class MFRC522:
 
     serNum = []
 
-    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=10, pin_rst=-1, debugLevel='WARNING'):
+    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=GPIO.BOARD, pin_rst=-1, log_verbose=False):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        if log_verbose:
+            self.logger.setLevel(logging.DEBUG)
+        else:
+            self.logger.setLevel(logging.INFO)
+
+        self.logger.info('Setting up SPI')
         self.spi = spidev.SpiDev()
         self.spi.open(bus, device)
         self.spi.max_speed_hz = spd
 
-        self.logger = logging.getLogger('mfrc522Logger')
-        self.logger.addHandler(logging.StreamHandler())
-        level = logging.getLevelName(debugLevel)
-        self.logger.setLevel(level)
-
         gpioMode = GPIO.getmode()
-        
         if gpioMode is None:
             GPIO.setmode(pin_mode)
         else:
             pin_mode = gpioMode
-            
+
         if pin_rst == -1:
             if pin_mode == 11:
                 pin_rst = 15
             else:
                 pin_rst = 22
-            
+
+        self.logger.info('Setting up RST')
         GPIO.setup(pin_rst, GPIO.OUT)
         GPIO.output(pin_rst, 1)
+
+        self.logger.info('Setting up MFRC522')
         self.MFRC522_Init()
 
     def MFRC522_Reset(self):
@@ -249,14 +254,13 @@ class MFRC522:
         return (status, backData, backLen)
 
     def MFRC522_Request(self, reqMode):
-        status = None
-        backBits = None
         TagType = []
 
         self.Write_MFRC522(self.BitFramingReg, 0x07)
 
         TagType.append(reqMode)
-        (status, backData, backBits) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, TagType)
+        (status, backData, backBits) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE,
+                                                           TagType)
 
         if ((status != self.MI_OK) | (backBits != 0x10)):
             status = self.MI_ERR
@@ -264,9 +268,7 @@ class MFRC522:
         return (status, backBits)
 
     def MFRC522_Anticoll(self):
-        backData = []
         serNumCheck = 0
-
         serNum = []
 
         self.Write_MFRC522(self.BitFramingReg, 0x00)
@@ -274,7 +276,8 @@ class MFRC522:
         serNum.append(self.PICC_ANTICOLL)
         serNum.append(0x20)
 
-        (status, backData, backBits) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, serNum)
+        (status, backData, backBits) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE,
+                                                           serNum)
 
         if (status == self.MI_OK):
             i = 0
@@ -308,24 +311,24 @@ class MFRC522:
         return pOutData
 
     def MFRC522_SelectTag(self, serNum):
-        backData = []
         buf = []
         buf.append(self.PICC_SElECTTAG)
         buf.append(0x70)
-        
+
         for i in range(5):
             buf.append(serNum[i])
 
         pOut = self.CalulateCRC(buf)
         buf.append(pOut[0])
         buf.append(pOut[1])
-        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
+        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE,
+                                                          buf)
 
         if (status == self.MI_OK) and (backLen == 0x18):
             self.logger.debug("Size: " + str(backData[0]))
-            return backData[0]
+            return status, backData[0]
         else:
-            return 0
+            return status, None
 
     def MFRC522_Auth(self, authMode, BlockAddr, Sectorkey, serNum):
         buff = []
@@ -345,11 +348,13 @@ class MFRC522:
             buff.append(serNum[i])
 
         # Now we start the authentication itself
-        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_AUTHENT, buff)
+        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_AUTHENT,
+                                                          buff)
 
         # Check if an error occurred
         if not (status == self.MI_OK):
             self.logger.error("AUTH ERROR!!")
+
         if not (self.Read_MFRC522(self.Status2Reg) & 0x08) != 0:
             self.logger.error("AUTH ERROR(status2reg & 0x08) != 0")
 
@@ -366,7 +371,8 @@ class MFRC522:
         pOut = self.CalulateCRC(recvData)
         recvData.append(pOut[0])
         recvData.append(pOut[1])
-        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
+        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE,
+                                                          recvData)
         if not (status == self.MI_OK):
             self.logger.error("Error while reading!")
 
@@ -383,11 +389,14 @@ class MFRC522:
         crc = self.CalulateCRC(buff)
         buff.append(crc[0])
         buff.append(crc[1])
-        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buff)
-        if not (status == self.MI_OK) or not (backLen == 4) or not ((backData[0] & 0x0F) == 0x0A):
+        (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE,
+                                                          buff)
+        if not (status == self.MI_OK) or not (backLen == 4) or not (
+                (backData[0] & 0x0F) == 0x0A):
             status = self.MI_ERR
 
-        self.logger.debug("%s backdata &0x0F == 0x0A %s" % (backLen, backData[0] & 0x0F))
+        self.logger.debug(
+            "%s backdata &0x0F == 0x0A %s" % (backLen, backData[0] & 0x0F))
         if status == self.MI_OK:
             buf = []
             for i in range(16):
@@ -396,12 +405,13 @@ class MFRC522:
             crc = self.CalulateCRC(buf)
             buf.append(crc[0])
             buf.append(crc[1])
-            (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
-            if not (status == self.MI_OK) or not (backLen == 4) or not ((backData[0] & 0x0F) == 0x0A):
+            (status, backData, backLen) = self.MFRC522_ToCard(
+                self.PCD_TRANSCEIVE, buf)
+            if not (status == self.MI_OK) or not (backLen == 4) or not (
+                    (backData[0] & 0x0F) == 0x0A):
                 self.logger.error("Error while writing")
             if status == self.MI_OK:
                 self.logger.debug("Data written")
-
 
     def MFRC522_DumpClassic1K(self, key, uid):
         for i in range(64):
