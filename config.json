@@ -1,0 +1,9 @@
+{
+    "IdentityUrl": "https://id.plato.rocks/connect/token",
+    "ProfileAuthUrl": "",
+    "TimeStampUrl": "",
+    "MifareBlockUserId": 1,
+    "MifareBlockName": 2,
+    "User":"schwarzenstein",
+    "Password": "schwarz99)"
+}

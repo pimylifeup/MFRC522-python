@@ -1,6 +1,21 @@
 from rfid_helper import RfidHelper
 import RPi.GPIO
 from time import sleep
+from gpiozero import Button
+from platoApi import ApiRequests
+import os
+
+# vars
+ACCESS_TOKEN = ''
+
+# SETUP
+apiRequests = ApiRequests(os.getcwd())
+
+## check for access token
+ACCESS_TOKEN = apiRequests.RequestToken()
+
+
+
 
 print ("Start reading RFID Tag")
 readerClass = RfidHelper()
