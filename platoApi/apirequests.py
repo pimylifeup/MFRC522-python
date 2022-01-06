@@ -48,7 +48,33 @@ class ApiRequests:
 
         return accessToken
 
+
+    # return the json response 
     def AuthorizeProfile(self, card_id, profile_id):
+        appConfig = self.configIO.read_config
+        url = appConfig['ProfileAuthUrl']
+
+        # request token
+        token:str = self.tokenIO.read_token()
+
+        headers = {
+            'content-type' : 'application/json',
+            'Authorization': 'Bearer '+token
+        }
+        body = {
+            "ProfileId": profile_id,
+            "CardId":card_id
+        }
+
+        response = requests.post(url, headers=headers, data=json.dumps(body))
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()
+
+        
+
         
 
 

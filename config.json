@@ -1,6 +1,6 @@
 {
     "IdentityUrl": "https://id.plato.rocks/connect/token",
-    "ProfileAuthUrl": "",
+    "ProfileAuthUrl": "https://api.plato.rocks/hr/timestamp/authenticate",
     "TimeStampUrl": "",
     "MifareBlockUserId": 1,
     "MifareBlockName": 2,
