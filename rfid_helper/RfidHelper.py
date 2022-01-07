@@ -1,5 +1,6 @@
 from . import MFRC522
 import RPi.GPIO as GPIO
+import string
 
 class RfidHelper:
 
@@ -53,7 +54,12 @@ class RfidHelper:
                 data += block
 
             if data:
-                output_text = ''.join(chr(i) for i in data)
+                #output_text = ''.join(hex(i) for i in data)
+                for i in data:
+                    if i != 0:
+                        char = chr(i)
+                        output_text += char
+
 
         self.READER.MFRC522_StopCrypto1()
 

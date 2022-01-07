@@ -9,6 +9,9 @@ class UiConverter:
     def to_UI_string(self, data:list) -> str:
         output = ''
 
+        if len(data) > 4:
+            data = data[0:4]
+
         for i in data:
             if type(i) is int:
                 hex_value = hex(i)

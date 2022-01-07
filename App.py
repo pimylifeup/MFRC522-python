@@ -9,25 +9,19 @@ from byteconverter import UiConverter
 
 
 # GPIO
-BTN_checkIn = Button(3)
-BTN_checkOut = Button(4)
+BTN_checkIn = Button(17)
+BTN_checkOut = Button(18)
 
-# helpers
-def btnPressCheckIn():
-    actionSelected = 1
-    buttonSelected = 1
-
-def btnPressCheckOut():
-    actionSelected = 2
-    buttonSelected = 1
 
 # vars
 ACCESS_TOKEN = ''
 
 # SETUP
-apiRequests = ApiRequests(os.getcwd())
+base_path = os.getcwd()
+apiRequests = ApiRequests(base_path)
 uiConverter = UiConverter()
-config = configuration.ConfigurationIO()
+config = configuration.ConfigurationIO(base_path)
+actionEnum = configuration.ActionEnum()
 
 ## check for access token
 ACCESS_TOKEN = apiRequests.RequestToken()
@@ -57,8 +51,16 @@ try:
             # start request
             responseJSON = apiRequests.AuthorizeProfile(UI_string, int(profileId))
 
+            
+
             if responseJSON != None:
                 sleep(1)
+
+                if responseJSON['IsError'] == True:
+                    print(responseJSON['ErrorMsg'])
+                    sleep(1)
+                    UI = None
+                    profileId = None
 
             # display info
 
@@ -67,14 +69,15 @@ try:
             ## display Time
 
             # wait for user input
-                while buttonSelected == 0:
+                print('Select button')
+                while actionEnum.ButtonSelected == 0:
                     # wait for intput
-                    BTN_checkIn.when_released = btnPressCheckIn
-                    BTN_checkOut.when_released = btnPressCheckOut
+                    BTN_checkIn.when_activated = actionEnum.ClickCheckIn
+                    BTN_checkOut.when_activated = actionEnum.ClickCheckOut
 
                 # send user input
                 responseJSON = apiRequests.SendTimestamp(
-                    actionSelected,
+                    actionEnum.GetActionName(),
                     responseJSON['ProfileId'],
                     responseJSON['CardId'],
                     responseJSON['TokenTimeStamp'],
@@ -84,23 +87,25 @@ try:
                 if responseJSON['Success'] == True:
                     # display ok for 3 sec
                     
+                    print('Success POST Timestamp')
                     sleep(3)
 
                 else:
                     # display error for 3 sec
 
+                    print("ERROR posting timestamp")
                     sleep(3)
 
 
                 # reset to normality
-                actionSelected = 0
-                buttonSelected = 0
+                actionEnum.Reset()
 
                 # clear display
 
 
             else:
                 # display ERROR
+                print("Error on Authentication")
                 sleep(10)
 
             sleep(2)

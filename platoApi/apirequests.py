@@ -2,7 +2,6 @@ import requests
 import json
 from configuration import TokenIO
 from configuration import ConfigurationIO
-from configuration import ActionEnum
 
 class ApiRequests:
 
@@ -13,7 +12,6 @@ class ApiRequests:
     def __init__(self, configFilePath) -> None:
         self.configIO = ConfigurationIO(configFilePath)
         self.tokenIO = TokenIO(configFilePath)
-        self.actionEnum = ActionEnum()
         pass
 
     def RequestToken(self) -> str:
@@ -59,7 +57,7 @@ class ApiRequests:
         the function returns the JSON-Obj
         """
 
-        appConfig = self.configIO.read_config
+        appConfig = self.configIO.read_config()
         url = appConfig['ProfileAuthUrl']
 
         # request token
@@ -88,7 +86,7 @@ class ApiRequests:
         the function returns the JSON-Obj
         """
 
-        appConfig = self.configIO.read_config
+        appConfig = self.configIO.read_config()
         url = appConfig['TimeStampUrl']
 
         # request token
@@ -99,9 +97,8 @@ class ApiRequests:
             'Authorization': 'Bearer '+token
         }
 
-        actionValue = self.actionEnum.ReturnValue(action)
         body = {
-            "Action":actionValue,
+            "Action":action,
             "ProfileId":profileId,
             "CardId":cardId,
             "TokenTimeStamp":securityToken,
