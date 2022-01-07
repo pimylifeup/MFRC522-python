@@ -1,5 +1,5 @@
 from rfid_helper import RfidHelper
-import RPi.GPIO
+import RPi.GPIO as GPIO
 from time import sleep
 from gpiozero import Button
 from platoApi import ApiRequests
@@ -70,8 +70,32 @@ try:
                     BTN_checkIn.when_released = btnPressCheckIn
                     BTN_checkOut.when_released = btnPressCheckOut
 
-            # send user input
-            
+                # send user input
+                responseJSON = apiRequests.SendTimestamp(
+                    actionSelected,
+                    responseJSON['ProfileId'],
+                    responseJSON['CardId'],
+                    responseJSON['TokenTimeStamp'],
+                    responseJSON['TokenTimeStamp'])
+
+                # check response
+                if responseJSON['Success'] == True:
+                    # display ok for 3 sec
+                    
+                    sleep(3)
+
+                else:
+                    # display error for 3 sec
+
+                    sleep(3)
+
+
+                # reset to normality
+                actionSelected = 0
+                buttonSelected = 0
+
+                # clear display
+
 
             else:
                 # display ERROR
@@ -81,6 +105,10 @@ try:
             print("Hold a card")
             profileId = None
             UI = None
+
+
+        # update time on the monitor
+
 
 
 
