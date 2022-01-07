@@ -1,3 +1,4 @@
+import configuration
 from rfid_helper import RfidHelper
 import RPi.GPIO as GPIO
 from time import sleep
@@ -26,12 +27,13 @@ ACCESS_TOKEN = ''
 # SETUP
 apiRequests = ApiRequests(os.getcwd())
 uiConverter = UiConverter()
+config = configuration.ConfigurationIO()
 
 ## check for access token
 ACCESS_TOKEN = apiRequests.RequestToken()
 
 # MIFARE Blocks
-PROFILEID_BLOCK = 1
+PROFILEID_BLOCK = config.read_config()['MifareBlockUserId']
 
 # global vars
 buttonSelected = 0
@@ -44,7 +46,7 @@ print("Hold a card")
 
 try:
     while True:
-        UI, profileId = readerClass.read_block(1)
+        UI, profileId = readerClass.read_block(PROFILEID_BLOCK)
 
         while profileId != None:
             print("ID: %s" % (UI))

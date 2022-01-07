@@ -81,6 +81,7 @@ class ApiRequests:
 
         return response.json()
 
+    # return the json response
     def SendTimestamp(self, action, profileId, cardId, securityToken, timestamp):
         """"
         Send the timestamp to the server and get a SuccessResponse
