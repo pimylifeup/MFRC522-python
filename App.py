@@ -6,6 +6,8 @@ from gpiozero import Button
 from platoApi import ApiRequests
 import os
 from byteconverter import UiConverter
+from rpi_lcd import LCD
+import datetime
 
 
 # GPIO
@@ -22,6 +24,7 @@ apiRequests = ApiRequests(base_path)
 uiConverter = UiConverter()
 config = configuration.ConfigurationIO(base_path)
 actionEnum = configuration.ActionEnum()
+lcd = LCD(width=16)
 
 ## check for access token
 ACCESS_TOKEN = apiRequests.RequestToken()
@@ -33,8 +36,11 @@ PROFILEID_BLOCK = config.read_config()['MifareBlockUserId']
 buttonSelected = 0
 actionSelected = 0   # 1 = checkIn  2 = checkOut
 
+lcd.clear()
+lcd.text("Loading ...",1)
 print ("Start reading RFID Tag")
 readerClass = RfidHelper()
+
 
 print("Hold a card")
 
@@ -54,11 +60,12 @@ try:
             
 
             if responseJSON != None:
-                sleep(1)
 
                 if responseJSON['IsError'] == True:
                     print(responseJSON['ErrorMsg'])
-                    sleep(1)
+                    lcd.clear()
+                    lcd.text("Error", 1, align='center')
+                    sleep(2)
                     UI = None
                     profileId = None
 
@@ -70,10 +77,15 @@ try:
 
             # wait for user input
                 print('Select button')
+                lcd.clear()
+                lcd.text(responseJSON['ProfileName'], 1)
                 while actionEnum.ButtonSelected == 0:
                     # wait for intput
                     BTN_checkIn.when_activated = actionEnum.ClickCheckIn
                     BTN_checkOut.when_activated = actionEnum.ClickCheckOut
+
+                lcd.text(actionEnum.GetActionName(), 2, align='center')
+                sleep(1)
 
                 # send user input
                 responseJSON = apiRequests.SendTimestamp(
@@ -86,40 +98,51 @@ try:
                 # check response
                 if responseJSON['Success'] == True:
                     # display ok for 3 sec
-                    
+                    lcd.clear()
+                    lcd.text("OK", 1, align='center')
                     print('Success POST Timestamp')
                     sleep(3)
 
                 else:
                     # display error for 3 sec
-
+                    lcd.clear()
+                    lcd.text("ERROR", 1, align='center')
+                    lcd.text("API NOT READY",2, align='center')
                     print("ERROR posting timestamp")
-                    sleep(3)
+                    sleep(10)
 
 
                 # reset to normality
                 actionEnum.Reset()
 
                 # clear display
+                lcd.clear()
 
 
             else:
                 # display ERROR
                 print("Error on Authentication")
+                lcd.clear()
+                lcd.text("ERROR", 1, align='center')
+                lcd.text("CARD NOT VALID", 2, align='center')
+
                 sleep(10)
 
-            sleep(2)
+
             print("Hold a card")
             profileId = None
             UI = None
 
 
         # update time on the monitor
+        x = datetime.datetime.now()
 
+        lcd.text(x.strftime("%H:%M:%S"),1)
+        lcd.text("Hold a Card", 2, align='center')
 
 
 
 except KeyboardInterrupt:
-    raise
+    print("Exit")
 
 
