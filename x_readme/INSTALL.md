@@ -49,6 +49,16 @@ sudo i2cdetect -y 1
 
 Should be **27**
 
+## Register service
+
+copy **timestamp.service** to /lib/systemd/system and enable it
+
+```
+systemctl enable timestamp.service
+systemctl daemon-reload
+```
+
+
 
 
 
