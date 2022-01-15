@@ -32,7 +32,7 @@ ssh pi@raspberrypi.local
 Install only python3 packages
 
 ```
-sudo apt-get update && apt-get install -y python3 python3-pip rpi.gpio python3-smbus
+sudo apt-get update && apt-get install -y python3 python3-pip rpi.gpio python3-smbus i2c-tools
 ```
 
 Python pip packages
@@ -40,6 +40,16 @@ Python pip packages
 ```
 sudo pip3 install -f requirements.txt
 ```
+
+check for detecting display via I2C
+
+```
+sudo i2cdetect -y 1
+```
+
+Should be **27**
+
+
 
 
 
