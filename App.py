@@ -49,16 +49,40 @@ try:
         UI, profileId = readerClass.read_block(PROFILEID_BLOCK)
 
         while profileId != None:
+            # output to display
+            lcd.clear()
+            lcd.text("Working", 1, align='center')
+
+            # try convert profileId to number
+            UI_string = None
+            try:
+                UI_string = uiConverter.to_UI_string(UI)
+            except:
+                lcd.clear()
+                lcd.text("ERROR Card", 1, align='center')
+                lcd.text("try again", 2, align='center')
+                sleep(3)
+                UI = None
+                profileId = None
+
+            # debug output
             print("ID: %s" % (UI))
-            UI_string = uiConverter.to_UI_string(UI)
             print("ID HEX: "+ UI_string)
             print("TEXT: %s" % (profileId))
 
             # start request
-            responseJSON = apiRequests.AuthorizeProfile(UI_string, int(profileId))
+            responseJSON = None
+            try:
+                responseJSON = apiRequests.AuthorizeProfile(UI_string, int(profileId))
+            except:
+                lcd.clear()
+                lcd.text("Error api", 1, align='center')
+                lcd.text("Try again", 2, align='center')
+                sleep(3)
+                UI=None
+                profileId = None
 
-            
-
+            # process with response
             if responseJSON != None:
 
                 if responseJSON['IsError'] == True:
@@ -69,31 +93,36 @@ try:
                     UI = None
                     profileId = None
 
-            # display info
-
-            ## display Name
-            ## display Errors
-            ## display Time
 
             # wait for user input
                 print('Select button')
                 lcd.clear()
                 lcd.text(responseJSON['ProfileName'], 1)
+
                 while actionEnum.ButtonSelected == 0:
                     # wait for intput
                     BTN_checkIn.when_activated = actionEnum.ClickCheckIn
                     BTN_checkOut.when_activated = actionEnum.ClickCheckOut
 
                 lcd.text(actionEnum.GetActionName(), 2, align='center')
+                print(actionEnum.GetActionName())
                 sleep(1)
 
                 # send user input
-                responseJSON = apiRequests.SendTimestamp(
-                    actionEnum.GetActionName(),
-                    responseJSON['ProfileId'],
-                    responseJSON['CardId'],
-                    responseJSON['TokenTimeStamp'],
-                    responseJSON['TokenTimeStamp'])
+                try:
+                    responseJSON = apiRequests.SendTimestamp(
+                        actionEnum.GetActionName(),
+                        responseJSON['ProfileId'],
+                        responseJSON['CardId'],
+                        responseJSON['TokenTimeStamp'],
+                        responseJSON['TokenTimeStamp'])
+                except:
+                    lcd.clear()
+                    lcd.text("Error api", 1, align='center')
+                    lcd.text("Try again", 2, align='center')
+                    sleep(3)
+                    UI=None
+                    profileId = None
 
                 # check response
                 if responseJSON['Success'] == True:
@@ -107,9 +136,9 @@ try:
                     # display error for 3 sec
                     lcd.clear()
                     lcd.text("ERROR", 1, align='center')
-                    lcd.text("API NOT READY",2, align='center')
+                    lcd.text("Not valid",2, align='center')
                     print("ERROR posting timestamp")
-                    sleep(10)
+                    sleep(5)
 
 
                 # reset to normality
