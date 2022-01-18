@@ -6,6 +6,8 @@ After=multi-user.target
 Type=idle
 WorkingDirectory=/home/pi/git/MFRC522-python
 ExecStart=/usr/bin/python3 /home/pi/git/MFRC522-python/App.py
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
