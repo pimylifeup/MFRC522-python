@@ -27,7 +27,7 @@ uiConverter = UiConverter()
 config = configuration.ConfigurationIO(base_path)
 actionEnum = configuration.ActionEnum()
 lcd = LCD(width=16)
-logging.basicConfig(filename='app.log', filemode='w+', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename='app.log', filemode='a', encoding='utf-8', level=logging.DEBUG)
 
 ## check for access token
 ACCESS_TOKEN = apiRequests.RequestToken()
