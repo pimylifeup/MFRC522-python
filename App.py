@@ -8,6 +8,8 @@ import os
 from byteconverter import UiConverter
 from rpi_lcd import LCD
 import datetime
+import logging
+import sys
 
 
 # GPIO
@@ -25,6 +27,7 @@ uiConverter = UiConverter()
 config = configuration.ConfigurationIO(base_path)
 actionEnum = configuration.ActionEnum()
 lcd = LCD(width=16)
+logging.basicConfig(filename='app.log', filemode='w+', encoding='utf-8', level=logging.DEBUG)
 
 ## check for access token
 ACCESS_TOKEN = apiRequests.RequestToken()
@@ -41,6 +44,11 @@ lcd.text("Loading ...",1)
 print ("Start reading RFID Tag")
 readerClass = RfidHelper()
 
+
+# helper functions
+def log(msg):
+    d = datetime.datetime.now()
+    logging.debug(d + " : " + msg)
 
 print("Hold a card")
 
@@ -61,6 +69,11 @@ try:
                 lcd.clear()
                 lcd.text("ERROR Card", 1, align='center')
                 lcd.text("try again", 2, align='center')
+
+                # log
+                e = sys.exc_info()[0]
+                log(e)
+
                 sleep(3)
                 UI = None
                 profileId = None
@@ -78,6 +91,11 @@ try:
                 lcd.clear()
                 lcd.text("Error api", 1, align='center')
                 lcd.text("Try again", 2, align='center')
+                
+                # log
+                e = sys.exc_info()[0]
+                log(e)
+
                 sleep(3)
                 UI=None
                 profileId = None
@@ -99,6 +117,9 @@ try:
                 lcd.clear()
                 lcd.text(responseJSON['ProfileName'], 1)
 
+
+                # reset button status
+                actionEnum.Reset()
                 while actionEnum.ButtonSelected == 0:
                     # wait for intput
                     BTN_checkIn.when_activated = actionEnum.ClickCheckIn
@@ -120,6 +141,11 @@ try:
                     lcd.clear()
                     lcd.text("Error api", 1, align='center')
                     lcd.text("Try again", 2, align='center')
+
+                    # log
+                    e = sys.exc_info()[0]
+                    log(e)
+                    
                     sleep(3)
                     UI=None
                     profileId = None
@@ -173,5 +199,10 @@ try:
 
 except KeyboardInterrupt:
     print("Exit")
+
+except: 
+    # log
+    e = sys.exc_info()[0]
+    log(e)
 
 

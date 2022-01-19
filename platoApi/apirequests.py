@@ -7,7 +7,6 @@ class ApiRequests:
 
     tokenIO = None
     configIO = None
-    actionEnum = None
 
     def __init__(self, configFilePath) -> None:
         self.configIO = ConfigurationIO(configFilePath)
