@@ -187,6 +187,9 @@ try:
             print("Hold a card")
             profileId = None
             UI = None
+            
+            # reset reader class to prevent problems
+            readerClass = RfidHelper()
 
 
         # update time on the monitor
@@ -194,6 +197,7 @@ try:
 
         lcd.text(x.strftime("%H:%M:%S"),1)
         lcd.text("Hold a Card", 2, align='center')
+
 
 
 
