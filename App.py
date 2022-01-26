@@ -77,6 +77,7 @@ try:
                 sleep(3)
                 UI = None
                 profileId = None
+                readerClass = RfidHelper()
 
             # debug output
             print("ID: %s" % (UI))
@@ -99,6 +100,7 @@ try:
                 sleep(3)
                 UI=None
                 profileId = None
+                readerClass = RfidHelper()
 
             # process with response
             if responseJSON != None:
@@ -110,6 +112,7 @@ try:
                     sleep(2)
                     UI = None
                     profileId = None
+                    readerClass = RfidHelper()
 
 
             # wait for user input
@@ -149,6 +152,7 @@ try:
                     sleep(3)
                     UI=None
                     profileId = None
+                    readerClass = RfidHelper()
 
                 # check response
                 if responseJSON['Success'] == True:
