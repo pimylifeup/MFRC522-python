@@ -5,8 +5,7 @@
 
 __name__ = "ExtendedMFRC522"
 
-from mfrc522 import SimpleMFRC522
-
+from . import SimpleMFRC522
 
 class ExtendedMFRC522(SimpleMFRC522):
 
