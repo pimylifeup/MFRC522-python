@@ -5,10 +5,10 @@ from time import sleep
 from gpiozero import Button
 from platoApi import ApiRequests
 import os
+from loggingLogic import DebugHelper
 from byteconverter import UiConverter
 from rpi_lcd import LCD
 import datetime
-import logging
 import sys
 
 
@@ -27,9 +27,14 @@ uiConverter = UiConverter()
 config = configuration.ConfigurationIO(base_path)
 actionEnum = configuration.ActionEnum()
 lcd = LCD(width=16)
-logging.basicConfig(filename='app.log', filemode='a', encoding='utf-8', level=logging.DEBUG)
+debug = DebugHelper(True)
+
+# start lcd
+lcd.clear()
+lcd.text("Loading ...",1)
 
 ## check for access token
+debug.log("Request Token // loading ...")
 ACCESS_TOKEN = apiRequests.RequestToken()
 
 # MIFARE Blocks
@@ -39,24 +44,11 @@ PROFILEID_BLOCK = config.read_config()['MifareBlockUserId']
 buttonSelected = 0
 actionSelected = 0   # 1 = checkIn  2 = checkOut
 
-lcd.clear()
-lcd.text("Loading ...",1)
-print ("Start reading RFID Tag")
+debug.log("Start reading RFID Tag + init RfidHelper Class")
 readerClass = RfidHelper()
 
 
-# helper functions
-def log(msg):
-    d = datetime.datetime.now()
-    logging.debug(d + " : " + msg)
-
-def log_UID(list):
-    content = ''
-    for a in list:
-        content += hex(a)+" "
-    logging.debug("UID "+content)
-
-print("Hold a card")
+debug.log("Hold a card")
 
 try:
     while True:
@@ -67,7 +59,8 @@ try:
             lcd.clear()
             lcd.text("Working", 1, align='center')
 
-            log_UID(UI)
+            debug.log("a card was read")
+            debug.log_UID(UI)
 
             # try convert profileId to number
             UI_string = None
@@ -79,9 +72,9 @@ try:
                 lcd.text("try again", 2, align='center')
 
                 # log
-                log("Error card")
+                debug.log("Error card - reading UI - converting to string")
                 e = sys.exc_info()[0]
-                log(e)
+                debug.log(e)
 
                 sleep(3)
                 UI = None
@@ -89,11 +82,12 @@ try:
                 readerClass = RfidHelper()
 
             # debug output
-            print("ID: %s" % (UI))
-            print("ID HEX: "+ UI_string)
-            print("TEXT: %s" % (profileId))
+            debug.log("ID: %s" % (UI))
+            debug.log("ID HEX: "+ UI_string)
+            debug.log("TEXT: %s" % (profileId))
 
             # start request
+            debug.log("Start authorize api ...")
             responseJSON = None
             try:
                 responseJSON = apiRequests.AuthorizeProfile(UI_string, int(profileId))
@@ -103,26 +97,27 @@ try:
                 lcd.text("Try again", 2, align='center')
                 
                 # log
-                log("Error API")
+                debug.log("Error API")
                 e = sys.exc_info()[0]
-                log(e)
+                debug.log(e)
 
                 sleep(3)
                 UI=None
                 profileId = None
                 readerClass = RfidHelper()
 
+
+            debug.log("Api request OK - parse JSON ...")
             # process with response
             if responseJSON != None:
 
                 if responseJSON['IsError'] == True:
-                    print(responseJSON['ErrorMsg'])
                     lcd.clear()
                     lcd.text("Error", 1, align='center')
 
                     # log
-                    log("Api response error")
-                    log(responseJSON['ErrorMsg'])
+                    debug.log("Response error")
+                    debug.log(responseJSON['ErrorMsg'])
 
                     sleep(2)
                     UI = None
@@ -131,7 +126,7 @@ try:
 
 
             # wait for user input
-                print('Select button')
+                debug.log('Select button')
                 lcd.clear()
                 lcd.text(responseJSON['ProfileName'], 1)
 
@@ -144,14 +139,14 @@ try:
                     BTN_checkOut.when_activated = actionEnum.ClickCheckOut
 
                 lcd.text(actionEnum.GetActionName(), 2, align='center')
-                print(actionEnum.GetActionName())
-                
+
                 # log
-                log(actionEnum.GetActionName())
+                debug.log("pressed: " + actionEnum.GetActionName())
                 
                 sleep(1)
 
                 # send user input
+                debug.log("Start POST api button pressed")
                 try:
                     responseJSON = apiRequests.SendTimestamp(
                         actionEnum.GetActionName(),
@@ -165,9 +160,9 @@ try:
                     lcd.text("Try again", 2, align='center')
 
                     # log
-                    log("Error on api")
+                    debug.log("Error on api")
                     e = sys.exc_info()[0]
-                    log(e)
+                    debug.log(e)
                     
                     sleep(3)
                     UI=None
@@ -179,7 +174,7 @@ try:
                     # display ok for 3 sec
                     lcd.clear()
                     lcd.text("OK", 1, align='center')
-                    print('Success POST Timestamp')
+                    debug.log('Success POST Timestamp')
                     sleep(3)
 
                 else:
@@ -187,12 +182,11 @@ try:
                     lcd.clear()
                     lcd.text("ERROR", 1, align='center')
                     lcd.text("Not valid",2, align='center')
-                    print("ERROR posting timestamp")
                     
                     # log
-                    log("Error posting timestamp")
+                    debug.log("ERROR posting timestamp")
 
-                    sleep(5)
+                    sleep(3)
 
 
                 # reset to normality
@@ -204,18 +198,17 @@ try:
 
             else:
                 # display ERROR
-                print("Error on Authentication")
                 lcd.clear()
                 lcd.text("ERROR", 1, align='center')
-                lcd.text("CARD NOT VALID", 2, align='center')
+                lcd.text("AUTH NOT VALID", 2, align='center')
 
                 # log
-                log("Card not valid")
+                debug.log("Error on Authentication")
 
-                sleep(10)
+                sleep(5)
 
 
-            print("Hold a card")
+            debug.log("Hold a card")
             profileId = None
             UI = None
             
@@ -233,11 +226,11 @@ try:
 
 
 except KeyboardInterrupt:
-    print("Exit")
+    debug.log("Exit: pressed CTRL+C")
 
 except: 
     # log
     e = sys.exc_info()[0]
-    log(e)
+    debug.log(e)
 
 
