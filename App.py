@@ -50,6 +50,12 @@ def log(msg):
     d = datetime.datetime.now()
     logging.debug(d + " : " + msg)
 
+def log_UID(list):
+    content = ''
+    for a in list:
+        content += hex(a)+" "
+    logging.debug("UID "+content)
+
 print("Hold a card")
 
 try:
@@ -61,6 +67,8 @@ try:
             lcd.clear()
             lcd.text("Working", 1, align='center')
 
+            log_UID(UI)
+
             # try convert profileId to number
             UI_string = None
             try:
@@ -71,6 +79,7 @@ try:
                 lcd.text("try again", 2, align='center')
 
                 # log
+                log("Error card")
                 e = sys.exc_info()[0]
                 log(e)
 
@@ -94,6 +103,7 @@ try:
                 lcd.text("Try again", 2, align='center')
                 
                 # log
+                log("Error API")
                 e = sys.exc_info()[0]
                 log(e)
 
@@ -109,6 +119,11 @@ try:
                     print(responseJSON['ErrorMsg'])
                     lcd.clear()
                     lcd.text("Error", 1, align='center')
+
+                    # log
+                    log("Api response error")
+                    log(responseJSON['ErrorMsg'])
+
                     sleep(2)
                     UI = None
                     profileId = None
@@ -130,6 +145,10 @@ try:
 
                 lcd.text(actionEnum.GetActionName(), 2, align='center')
                 print(actionEnum.GetActionName())
+                
+                # log
+                log(actionEnum.GetActionName())
+                
                 sleep(1)
 
                 # send user input
@@ -146,6 +165,7 @@ try:
                     lcd.text("Try again", 2, align='center')
 
                     # log
+                    log("Error on api")
                     e = sys.exc_info()[0]
                     log(e)
                     
@@ -168,6 +188,10 @@ try:
                     lcd.text("ERROR", 1, align='center')
                     lcd.text("Not valid",2, align='center')
                     print("ERROR posting timestamp")
+                    
+                    # log
+                    log("Error posting timestamp")
+
                     sleep(5)
 
 
@@ -184,6 +208,9 @@ try:
                 lcd.clear()
                 lcd.text("ERROR", 1, align='center')
                 lcd.text("CARD NOT VALID", 2, align='center')
+
+                # log
+                log("Card not valid")
 
                 sleep(10)
 
