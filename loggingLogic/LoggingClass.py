@@ -6,7 +6,14 @@ class DebugHelper:
     verbose = False
 
     def __init__(self, verbose) -> None:
-        logging.basicConfig(filename='app.log', filemode='a', encoding='utf-8', level=logging.DEBUG)
+        logging.basicConfig(
+            filename='app.log', 
+            filemode='a', 
+            encoding='utf-8', 
+            level=logging.DEBUG,
+            format="%(asctime)s %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S"
+            )
         self.verbose = verbose
 
     # helper functions
@@ -36,5 +43,6 @@ class DebugHelper:
 
 
     def addingTimestampToMsg(self, msg):
-        d = datetime.datetime.now().strftime("%I:%M:%S")
-        return (d+" : "+msg)
+        #d = datetime.datetime.now().strftime("%I:%M:%S")
+        #return (d+" : "+msg)
+        return msg
