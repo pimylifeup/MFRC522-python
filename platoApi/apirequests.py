@@ -2,6 +2,9 @@ import requests
 import json
 from configuration import TokenIO
 from configuration import ConfigurationIO
+from loggingLogic import DebugHelper
+
+debug = DebugHelper(True)
 
 class ApiRequests:
 
@@ -53,7 +56,7 @@ class ApiRequests:
     def AuthorizeProfile(self, card_id, profile_id):
         """"
         Send authorize request to the server, and gets infos about the profile
-        the function returns the JSON-Obj
+        the function returns the (JSON-Obj, status_code)
         """
 
         appConfig = self.configIO.read_config()
@@ -73,7 +76,19 @@ class ApiRequests:
 
         response = requests.post(url, headers=headers, data=json.dumps(body))
 
+        # if unauthorize - fetch token again
+        if response.status_code == 401:
+            debug.log("Unauthorized - refetch token")
+            token = self.RequestToken()
+            headers = {
+                'content-type' : 'application/json',
+                'Authorization': 'Bearer '+token
+            }
+            response = requests.post(url, headers=headers, data=json.dumps(body))
+
         if response.status_code != 200:
+            debug.log("Error on HTTP. Status: "+response.status_code)
+            debug.log("Response: "+response.text)
             return None
 
         return response.json()
