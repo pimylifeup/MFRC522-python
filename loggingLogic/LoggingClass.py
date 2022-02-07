@@ -9,7 +9,7 @@ class DebugHelper:
         logging.basicConfig(
             filename='app.log', 
             filemode='a', 
-            encoding='utf-8', 
+            # encoding='utf-8', 
             level=logging.DEBUG,
             format="%(asctime)s %(message)s",
             datefmt="%Y-%m-%dT%H:%M:%S"

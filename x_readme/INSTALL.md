@@ -38,7 +38,7 @@ sudo apt-get update && apt-get install -y python3 python3-pip rpi.gpio python3-s
 Python pip packages
 
 ```
-sudo pip3 install -f requirements.txt
+sudo pip3 install -r requirements.txt
 ```
 
 check for detecting display via I2C

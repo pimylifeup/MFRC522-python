@@ -2,3 +2,4 @@ gpiozero
 requests
 pypi
 spidev
+rpi_lcd
