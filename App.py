@@ -1,3 +1,4 @@
+import profile
 import configuration
 from rfid_helper import RfidHelper
 import RPi.GPIO as GPIO
@@ -55,6 +56,21 @@ try:
         UI, profileId = readerClass.read_block(PROFILEID_BLOCK)
 
         while profileId != None:
+            
+            # check if is not empty string
+            if isinstance(profileId, str):
+                if profileId.isspace():
+                    lcd.clear()
+                    lcd.text("Try again", 1, align='center')
+                    debug.log("ERROR: ProfileId a empty string")
+                    profileId = None
+            else:
+                lcd.clear()
+                lcd.text("Try again", 1, align='center')
+                debug.log("ERROR: ProfileId not a string")
+                profileId = None
+
+            
             # output to display
             lcd.clear()
             lcd.text("Working", 1, align='center')
