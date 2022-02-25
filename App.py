@@ -169,7 +169,7 @@ try:
                         responseJSON['ProfileId'],
                         responseJSON['CardId'],
                         responseJSON['TokenTimeStamp'],
-                        datetime.datetime.now().strftime("%Y-%m-%dT%H:%m:%S"))
+                        datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
                 except:
                     lcd.clear()
                     lcd.text("Error api", 1, align='center')
