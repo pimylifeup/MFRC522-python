@@ -1,9 +1,6 @@
 {
-    "IdentityUrl": "https://id.plato.rocks/connect/token",
-    "ProfileAuthUrl": "https://api.plato.rocks/hr/timestamp/authenticate",
-    "TimeStampUrl": "https://api.plato.rocks/hr/timestamp/process",
-    "MifareBlockUserId": 1,
-    "MifareBlockName": 2,
-    "User":"schwarzenstein",
-    "Password": "schwarz99)"
+    "ConfigUrl": "https://api.plato.rocks/apikey/timeclock/config",
+    "ProfileAuthUrl": "https://api.plato.rocks/apikey/timeclock/authenticate",
+    "TimeStampUrl": "https://api.plato.rocks/apikey/timeclock/process",
+    "ApiKey": ""
 }

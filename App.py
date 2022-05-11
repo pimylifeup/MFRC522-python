@@ -20,6 +20,7 @@ BTN_checkOut = Button(18)
 
 # vars
 ACCESS_TOKEN = ''
+MIFARE_BLOCK = None
 
 # SETUP
 base_path = os.getcwd()
@@ -35,11 +36,12 @@ lcd.clear()
 lcd.text("Loading ...",1)
 
 ## check for access token
-debug.log("Request Token // loading ...")
-ACCESS_TOKEN = apiRequests.RequestToken()
+# debug.log("Request Token // loading ...")
+# ACCESS_TOKEN = apiRequests.RequestToken()
 
 # MIFARE Blocks
-PROFILEID_BLOCK = config.read_config()['MifareBlockUserId']
+PROFILEID_BLOCK = apiRequests.RequestConfig()
+debug.log("ProfileBlockId " + PROFILEID_BLOCK)
 
 # global vars
 buttonSelected = 0

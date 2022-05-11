@@ -3,6 +3,7 @@ import json
 from configuration import TokenIO
 from configuration import ConfigurationIO
 from loggingLogic import DebugHelper
+from configuration import MifareConfigIO
 
 debug = DebugHelper(True)
 
@@ -10,10 +11,12 @@ class ApiRequests:
 
     tokenIO = None
     configIO = None
+    mifareConfigIO = None
 
     def __init__(self, configFilePath) -> None:
         self.configIO = ConfigurationIO(configFilePath)
         self.tokenIO = TokenIO(configFilePath)
+        self.mifareConfigIO = MifareConfigIO(configFilePath)
         pass
 
     def RequestToken(self) -> str:
@@ -52,6 +55,35 @@ class ApiRequests:
         return accessToken
 
 
+
+    def RequestConfig(self) -> str:
+        """
+        Reqeust the config to read the mifare cards 
+        """
+        # return url
+        configJson = self.configIO.read_config()
+        url = configJson["ConfigUrl"]
+        apiKey = configJson["ApiKey"]
+
+        headers = {
+            "x-api-key": apiKey
+        }
+
+        response = requests.get(
+            url,
+            headers=headers
+        )
+
+        responseText = response.text
+        print(responseText)
+        responseJson = json.loads(responseText)
+
+        mifareConfigBlock = responseJson["MifareBlock"]
+        self.mifareConfigIO.write_config(mifareConfigBlock)
+
+        return mifareConfigBlock
+        
+
     # return the json response 
     def AuthorizeProfile(self, card_id, profile_id):
         """"
@@ -61,13 +93,15 @@ class ApiRequests:
 
         appConfig = self.configIO.read_config()
         url = appConfig['ProfileAuthUrl']
+        apiKey = appConfig["ApiKey"]
+
 
         # request token
         token:str = self.tokenIO.read_token()
 
         headers = {
             'content-type' : 'application/json',
-            'Authorization': 'Bearer '+token
+            "x-api-key": apiKey
         }
         body = {
             "ProfileId": profile_id,
@@ -75,16 +109,6 @@ class ApiRequests:
         }
 
         response = requests.post(url, headers=headers, data=json.dumps(body))
-
-        # if unauthorize - fetch token again
-        if response.status_code == 401:
-            debug.log("Unauthorized - refetch token")
-            token = self.RequestToken()
-            headers = {
-                'content-type' : 'application/json',
-                'Authorization': 'Bearer '+token
-            }
-            response = requests.post(url, headers=headers, data=json.dumps(body))
 
         if response.status_code != 200:
             debug.log("Error on HTTP. Status: "+response.status_code)
@@ -102,13 +126,15 @@ class ApiRequests:
 
         appConfig = self.configIO.read_config()
         url = appConfig['TimeStampUrl']
+        apiKey = appConfig["ApiKey"]
+
 
         # request token
         token:str = self.tokenIO.read_token()
 
         headers = {
             'content-type' : 'application/json',
-            'Authorization': 'Bearer '+token
+            "x-api-key": apiKey
         }
 
         body = {
