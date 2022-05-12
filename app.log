@@ -1,0 +1,10 @@
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): id.plato.rocks:443
+DEBUG:urllib3.connectionpool:https://id.plato.rocks:443 "POST /connect/token HTTP/1.1" 200 1112
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.plato.rocks:443
+DEBUG:urllib3.connectionpool:https://api.plato.rocks:443 "POST /hr/timestamp/authenticate HTTP/1.1" 200 1162
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.plato.rocks:443
+DEBUG:urllib3.connectionpool:https://api.plato.rocks:443 "POST /hr/timestamp/process HTTP/1.1" 200 32
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.plato.rocks:443
+DEBUG:urllib3.connectionpool:https://api.plato.rocks:443 "POST /hr/timestamp/authenticate HTTP/1.1" 200 1148
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.plato.rocks:443
+DEBUG:urllib3.connectionpool:https://api.plato.rocks:443 "POST /hr/timestamp/process HTTP/1.1" 200 32

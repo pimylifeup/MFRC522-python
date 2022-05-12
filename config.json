@@ -1,0 +1,6 @@
+{
+    "ConfigUrl": "https://api.plato.rocks/apikey/timeclock/config",
+    "ProfileAuthUrl": "https://api.plato.rocks/apikey/timeclock/authenticate",
+    "TimeStampUrl": "https://api.plato.rocks/apikey/timeclock/process",
+    "ApiKey": ""
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=TimeStamp App
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/home/pi/git/MFRC522-python
+ExecStart=/usr/bin/python3 /home/pi/git/MFRC522-python/App.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
