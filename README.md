@@ -8,6 +8,18 @@ This code was published in relation to a [blog post](https://pimylifeup.com/rasp
 
 Until the package is on PyPi, clone this repository and run `python setup.py install` in the top level directory.
 
+<img src = "https://miro.medium.com/max/720/0*VsaGvGskvJa20hZa.png">
+
+RFID Module | Spalte 2
+-------- | --------
+SDA   | Pin 24
+SCK   | Pin 23
+MOSI  | Pin 19
+MISO  | Pin 21
+GND   | Pin 6
+RST   | Pin 22
+3.3v  | Pin 1
+
 ## Example Code
 
 The following code will read a tag from the MFRC522
