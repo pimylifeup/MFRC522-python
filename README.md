@@ -12,8 +12,8 @@ Until the package is on PyPi, clone this repository and run `python setup.py ins
 
 RFID Module | Spalte 2
 -------- | --------
-SDA   | Inhalt
-SCK   | Inhalt
+SDA   | Pin 24
+SCK   | Pin 23
 MOSI  | Pin 19
 MISO  | Pin 21
 GND   | Pin 6
