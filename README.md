@@ -4,6 +4,8 @@ A python library to read/write RFID tags via the budget MFRC522 RFID module.
 
 This code was published in relation to a [blog post](https://pimylifeup.com/raspberry-pi-rfid-rc522/) and you can find out more about how to hook up your MFRC reader to a Raspberry Pi there.
 
+<img src = "https://miro.medium.com/max/720/0*VsaGvGskvJa20hZa.png">
+
 ## Installation
 
 Until the package is on PyPi, clone this repository and run `python setup.py install` in the top level directory.
