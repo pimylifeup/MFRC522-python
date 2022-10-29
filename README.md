@@ -10,6 +10,16 @@ Until the package is on PyPi, clone this repository and run `python setup.py ins
 
 <img src = "https://miro.medium.com/max/720/0*VsaGvGskvJa20hZa.png">
 
+RFID Module | Spalte 2
+-------- | --------
+SDA   | Inhalt
+SCK   | Inhalt
+MOSI  | Pin 19
+MISO  | Pin 21
+GND   | Pin 6
+RST   | Pin 22
+3.3v  | Pin 1
+
 ## Example Code
 
 The following code will read a tag from the MFRC522
